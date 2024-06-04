@@ -4,7 +4,7 @@
  * @Author: shenkai03
  * @Date: 2024-06-04 21:03:51
  * @LastEditors: shenkai03
- * @LastEditTime: 2024-06-04 22:17:53
+ * @LastEditTime: 2024-06-04 22:24:27
  * @FilePath: /siteman/client/src/app/page.tsx
  * Copyright (C) 2024 shenkai03. All rights reserved.
  */
@@ -55,7 +55,7 @@ export default function Home({params}) {
   const createObj = (obj:Obj)=> {
     fetch('http://localhost:4000/create',{
       method:'POST',
-      body:obj
+      body:JSON.stringify(obj)
     }).then(response=>{
       if (!response.ok) {
         throw new Error('Network response was not ok ' + response.statusText);
