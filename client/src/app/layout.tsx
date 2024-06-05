@@ -27,9 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Theme>
-      <body className={inter.className}>{children}</body>
-      </Theme>
+     
+      <body className={inter.className}> <Theme>{children}   </Theme></body>
+   
     </html>
   );
 }
