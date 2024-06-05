@@ -4,7 +4,7 @@
  * @Author: shenkai03
  * @Date: 2024-06-04 21:03:51
  * @LastEditors: shenkai03
- * @LastEditTime: 2024-06-05 12:45:16
+ * @LastEditTime: 2024-06-05 17:52:49
  * @FilePath: /siteman/client/src/app/page.tsx
  * Copyright (C) 2024 shenkai03. All rights reserved.
  */
@@ -19,13 +19,14 @@ type Obj = {
   description: string;
 }
 
-export default function Home({ params = false }) {
+export default function Home() {
   const [showText, setShowText] = useState<Obj>({ id: 0, title: '', description: '' })
-  useEffect(() => {
-    if (params) getObj()
-  }
-    , [params]
-  )
+  // useEffect(() => {
+  //   const res = async()=> await  getObj()
+  //   if (params) res()
+  // }
+  //   , [params]
+  // )
   const getObj = async () => {
     fetch('http://localhost:4000/read').then(response => {
       if (!response.ok) {
@@ -85,12 +86,12 @@ export default function Home({ params = false }) {
   return (
     <Grid columns="1" rows="repeat(2,300px)" >
       <Box style={{ background: 'var(--gray-a2)', borderRadius: 'var(--radius-3)',textAlign:'center' }}>
-        <Text size="3" as='div' >ID:{id}</Text>
+        <Text size="3" as='div' data-testid='id' >ID:{id}</Text>
         <Text size="3" as='div'>title:{title}</Text>
         <Text size="3" as='div'>description:{description}</Text>
       </Box>
       <Box style={{display:'flex', justifyContent:'center'}}>
-        <Button color='blue' onClick={getObj}> Read(id:1)</Button>
+        <Button color='blue'data-testid='readButton' onClick={getObj}> Read(id:1)</Button>
         <Button color='green' onClick={() => createObj({ id: 2, title: 'testing', description: 'new testing' })}>Create(id:2)</Button>
         <Button color='yellow' onClick={() => updateObj({ id: 1, title: 'new testing', description: 'new testing ' })}>Update(id:1)</Button>
         <Button color='ruby' onClick={() => deleteObj(1)}>Delete(id:1)</Button>
