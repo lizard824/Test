@@ -1,101 +1,70 @@
-/*
- * @Description: 
- * @Version: 1.0
- * @Author: shenkai03
- * @Date: 2024-06-04 21:03:51
- * @LastEditors: shenkai03
- * @LastEditTime: 2024-06-05 17:52:49
- * @FilePath: /siteman/client/src/app/page.tsx
- * Copyright (C) 2024 shenkai03. All rights reserved.
- */
-'use client'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-import { Box, Text, Button, Grid, Container } from '@radix-ui/themes';
-import { useEffect, useState } from 'react';
+const Page = () => {
+  const [issues, setIssues] = useState([]);
+  const [newIssue, setNewIssue] = useState({ id: '', title: '', description: '' });
 
-type Obj = {
-  id: number;
-  title: string;
-  description: string;
-}
+  useEffect(() => {
+    fetchIssues();
+  }, []);
 
-export default function Home() {
-  const [showText, setShowText] = useState<Obj>({ id: 0, title: '', description: '' })
-  // useEffect(() => {
-  //   const res = async()=> await  getObj()
-  //   if (params) res()
-  // }
-  //   , [params]
-  // )
-  const getObj = async () => {
-    fetch('http://localhost:4000/read').then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
-      }
-      return response.json()
-    }).then(data => {
-      setShowText(data)
-    })
-  }
+  const fetchIssues = async () => {
+    const response = await axios.get('http://localhost:3000/issues');
+    setIssues(response.data);
+  };
 
-  const updateObj = (obj: Obj) => {
-    fetch('http://localhost:4000/update', {
-      method: 'POST',
-      body: JSON.stringify(obj)
-    }).then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
-      }
-      return response.json()
-    }).then(data => {
-      setShowText(data)
-    })
-  }
+  const createIssue = async () => {
+    await axios.post('http://localhost:3000/issues', newIssue);
+    fetchIssues();
+  };
 
+  const updateIssue = async (id:number) => {
+    await axios.put(`http://localhost:3000/issues/${id}`, newIssue);
+    fetchIssues();
+  };
 
-  const createObj = (obj: Obj) => {
-    fetch('http://localhost:4000/create', {
-      method: 'POST',
-      body: JSON.stringify(obj)
-    }).then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
-      }
-      return response.json()
-    }).then(data => {
-      setShowText(data)
-    })
-  }
-
-  const deleteObj = (id: Obj['id']) => {
-    fetch('http://localhost:4000/delete', {
-      method: 'POST',
-      body: JSON.stringify({ id })
-    }).then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
-      }
-      return response.json()
-    }).then(data => {
-      setShowText(data)
-    })
-  }
-
-  const { id, title, description }: Obj = showText
+  const deleteIssue = async (id:number) => {
+    await axios.delete(`http://localhost:3000/issues/${id}`);
+    fetchIssues();
+  };
 
   return (
-    <Grid columns="1" rows="repeat(2,300px)" >
-      <Box style={{ background: 'var(--gray-a2)', borderRadius: 'var(--radius-3)',textAlign:'center' }}>
-        <Text size="3" as='div' data-testid='id' >ID:{id}</Text>
-        <Text size="3" as='div'>title:{title}</Text>
-        <Text size="3" as='div'>description:{description}</Text>
-      </Box>
-      <Box style={{display:'flex', justifyContent:'center'}}>
-        <Button color='blue'data-testid='readButton' onClick={getObj}> Read(id:1)</Button>
-        <Button color='green' onClick={() => createObj({ id: 2, title: 'testing', description: 'new testing' })}>Create(id:2)</Button>
-        <Button color='yellow' onClick={() => updateObj({ id: 1, title: 'new testing', description: 'new testing ' })}>Update(id:1)</Button>
-        <Button color='ruby' onClick={() => deleteObj(1)}>Delete(id:1)</Button>
-      </Box>
-    </Grid>
+    <div>
+      <h1>Issue Tracker</h1>
+      <div>
+        <input
+          type="text"
+          placeholder="ID"
+          value={newIssue.id}
+          onChange={(e) => setNewIssue({ ...newIssue, id: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Title"
+          value={newIssue.title}
+          onChange={(e) => setNewIssue({ ...newIssue, title: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Description"
+          value={newIssue.description}
+          onChange={(e) => setNewIssue({ ...newIssue, description: e.target.value })}
+        />
+        <button onClick={createIssue}>Create Issue</button>
+      </div>
+      <h2>Existing Issues</h2>
+      <ul>
+        {issues.map(issue => (
+          <li key={issue.id}>
+            {issue.title}: {issue.description}
+            <button onClick={() => updateIssue(issue.id)}>Update</button>
+            <button onClick={() => deleteIssue(issue.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
-}
+};
+
+export default Page;

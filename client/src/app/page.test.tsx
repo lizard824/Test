@@ -4,37 +4,48 @@
  * @Author: shenkai03
  * @Date: 2024-06-04 22:10:28
  * @LastEditors: shenkai03
- * @LastEditTime: 2024-06-05 18:14:28
+ * @LastEditTime: 2024-06-08 23:19:20
  * @FilePath: /siteman/client/src/app/page.test.tsx
  * Copyright (C) 2024 shenkai03. All rights reserved.
  */
-import { render, screen,fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import Page from './page';
-import fetchMock from 'jest-fetch-mock';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import axios from 'axios';
+import IssueTracker from './page';
 
-// Before each test, enable the fetch mock
-beforeEach(() => {
-  fetchMock.enableMocks();
-});
+jest.mock('axios');
 
-// After each test, clear the fetch mock
-afterEach(() => {
-  fetchMock.resetMocks();
-});
+describe('IssueTracker', () => {
+  const issues = [
+    { id: 1, title: 'Issue 1', description: 'Description of Issue 1' },
+    { id: 2, title: 'Issue 2', description: 'Description of Issue 2' },
+    { id: 3, title: 'Issue 3', description: 'Description of Issue 3' },
+  ];
 
-describe('Test read method', () => {
-  it('should render with default text',async () => {
-    render(<Page/>);
-    fetchMock.mockResponseOnce(JSON.stringify({ id: 0 }));
+  beforeEach(() => {
+    axios.get.mockResolvedValue({ data: issues });
+  });
 
-    const btn = screen.getByTestId('readButton')
-    const text = screen.getByTestId('id');
-    await fireEvent.click(btn)
-    expect(text).toHaveTextContent('ID:0');
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+  it('renders issue tracker', async () => {
+    render(<IssueTracker />);
+
+    expect(await screen.findByText('Issue Tracker')).toBeInTheDocument();
+  });
+
+  it('creates a new issue', async () => {
+    axios.post.mockResolvedValue({
+      data: { id: 4, title: 'Issue 4', description: 'Description of Issue 4' },
+    });
+
+    render(<IssueTracker />);
+
+    fireEvent.change(screen.getByPlaceholderText('ID'), { target: { value: '4' } });
+    fireEvent.change(screen.getByPlaceholderText('Title'), { target: { value: 'Issue 4' } });
+    fireEvent.change(screen.getByPlaceholderText('Description'), { target: { value: 'Description of Issue 4' } });
+
+    fireEvent.click(screen.getByText('Create Issue'));
+
+    expect(await screen.findByText('Issue 4: Description of Issue 4')).toBeInTheDocument();
   });
 
 });
-
-
