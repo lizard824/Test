@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+type ISSUE = {
+  id:number|string;
+  title:string;
+  description:string;
+}
 const Page = () => {
   const [issues, setIssues] = useState([]);
-  const [newIssue, setNewIssue] = useState({ id: '', title: '', description: '' });
+  const [newIssue, setNewIssue] = useState<ISSUE>({ id: '', title: '', description: '' });
 
   useEffect(() => {
     fetchIssues();
@@ -19,12 +23,12 @@ const Page = () => {
     fetchIssues();
   };
 
-  const updateIssue = async (id:number) => {
+  const updateIssue = async (id) => {
     await axios.put(`http://localhost:3000/issues/${id}`, newIssue);
     fetchIssues();
   };
 
-  const deleteIssue = async (id:number) => {
+  const deleteIssue = async (id) => {
     await axios.delete(`http://localhost:3000/issues/${id}`);
     fetchIssues();
   };
@@ -55,7 +59,7 @@ const Page = () => {
       </div>
       <h2>Existing Issues</h2>
       <ul>
-        {issues.map(issue => (
+        {issues.map((issue:ISSUE) => (
           <li key={issue.id}>
             {issue.title}: {issue.description}
             <button onClick={() => updateIssue(issue.id)}>Update</button>
